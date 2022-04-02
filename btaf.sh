@@ -15,23 +15,59 @@ declare -i tests_count=0
 verbose='false' #full output from diff
 h_flag='false' #displaying help
 c_flag='false' #command mode
-n_flag='false' #creating test
+n_flag='false' #creating new test
 tested_program='main' #default mode, testing main program
 
-while getopts 'nhcvf:' flag; do
+while getopts ':nhcvf:' flag; do
   case "${flag}" in
     h) h_flag='true';;
     c) c_flag='true';;
-    v) verbose='true' ;;
+    v) verbose='true';;
     n) n_flag='true';;
     f) tested_program="${OPTARG}" ;;
-    *) echo "${RED} Wrong flag ${flag} displaying help message: ${NC}"
+    \?) echo -e "${RED} Illegal option $* ${NC}"
+        echo -e "---- Displaying help message ----"
         h_flag='true'
         exit 1 ;;
   esac
 done
 
 #testing modes
+default_mode (){
+
+    pushd $testdir_path > /dev/null || return
+
+    for test in in/*.in; do
+        tests_count+=1
+
+        if [ "$1" == "true" ]; then
+            if diff -w <(./"$2" <"$test" ) "out/${test:3:(-3)}.out"
+            then
+                echo -e "${GREEN} ${test:3:(-3)} TEST PASSED "
+                passed_count+=1
+            else
+                echo -e "${RED} ${test:3:(-3)} TEST FAILED "
+            fi
+        else
+            if diff -w <(./"$2" <"$test" ) "out/${test:3:(-3)}.out" > /dev/null
+            then
+                echo -e "${GREEN} ${test:3:(-3)} TEST PASSED "
+                passed_count+=1
+            else
+                echo -e "${RED} ${test:3:(-3)} TEST FAILED "
+            fi
+        fi
+    done
+
+    echo -e "${CYAN}-----------------------------------------------------${NC}"
+
+    if [ $passed_count -ne $tests_count ]; then
+            echo -e "${RED} ** ONLY ${passed_count}/${tests_count} TESTS HAVE PASSED **"
+        else
+            echo -e "${GREEN} ** GREAT! ${passed_count}/${tests_count} TESTS HAVE PASSED **"
+    fi
+}
+
 cmd_mode (){
     echo "command mode " #TODO: add usage
 }
@@ -39,6 +75,7 @@ cmd_mode (){
 help_mode (){
     echo "Usage as follows: " #TODO: add usage
 }
+
 create_test_mode (){
     echo "Verbose: $1 , c_flag: $2" #TODO: add usage
 }
@@ -51,32 +88,6 @@ case 'true' in
         exit 0;;
     "$c_flag") cmd_mode
         exit 0;;
-    v) verbose='true' ;;
-    *) exit 1 ;;
+        *) default_mode "$verbose" "$tested_program"
+        exit 0;;
 esac
-
-pushd $testdir_path > /dev/null || return
-
-for test in in/*.in; do
-    tests_count+=1
-
-    if [ verbose -e 'true' ]; then
-        diff -w <(./test <"$test" ) "out/${test:3:(-3)}.out" > /dev/null
-    fi
-    if diff -w <(./test <"$test" ) "out/${test:3:(-3)}.out" > /dev/null
-    then
-         echo -e "${GREEN} ${test:3:(-3)} TEST PASSED "
-         passed_count+=1
-    else
-         echo -e "${RED} ${test:3:(-3)} TEST FAILED "
-    fi
-    
-done
-
-echo -e "${CYAN}-----------------------------------------------------${NC}"
-
-if [ $passed_count -ne $tests_count ]; then
-        echo -e "${RED} ** ONLY ${passed_count}/${tests_count} TESTS HAVE PASSED **"
-    else
-        echo -e "${GREEN} ** GREAT! ${passed_count}/${tests_count} TESTS HAVE PASSED **"
-fi
