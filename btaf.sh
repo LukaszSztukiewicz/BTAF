@@ -41,7 +41,7 @@ default_mode (){
         tests_count+=1
 
         if [ "$1" == "true" ]; then
-            if diff -w <(./"$2" <"$test" ) "out/${test:3:(-3)}.out"
+            if diff -w <(../"$2" <"$test" ) "out/${test:3:(-3)}.out"
             then
                 echo -e "${GREEN} ${test:3:(-3)} TEST PASSED "
                 passed_count+=1
@@ -49,7 +49,7 @@ default_mode (){
                 echo -e "${RED} ${test:3:(-3)} TEST FAILED "
             fi
         else
-            if diff -w <(./"$2" <"$test" ) "out/${test:3:(-3)}.out" > /dev/null
+            if diff -w <(../"$2" <"$test" ) "out/${test:3:(-3)}.out" > /dev/null
             then
                 echo -e "${GREEN} ${test:3:(-3)} TEST PASSED "
                 passed_count+=1
@@ -69,7 +69,40 @@ default_mode (){
 }
 
 cmd_mode (){
-    echo "command mode " #TODO: add usage
+
+    for cmd in "$testdir_path"/cmd/*.sh; do
+        
+        tests_count+=1
+        chmod +x "$cmd"
+        testname="$(basename "${cmd}")"
+        echo $testname
+
+        if [ "$1" == "true" ]; then
+            if diff -w <(eval "${cmd}") "out/${testname:(-3)}.out"
+            then
+                echo -e "${GREEN} ${testname:(-3)} TEST PASSED "
+                passed_count+=1
+            else
+                echo -e "${RED} ${testname:(-3)} TEST FAILED "
+            fi
+        else
+            if diff -w <(eval "${cmd}") "out/${testname:(-3)}.out" > /dev/null
+            then
+                echo -e "${GREEN} ${testname:(-3)} TEST PASSED "
+                passed_count+=1
+            else
+                echo -e "${RED} ${testname:(-3)} TEST FAILED "
+            fi
+        fi
+    done
+
+    echo -e "${CYAN}-----------------------------------------------------${NC}"
+
+    if [ $passed_count -ne $tests_count ]; then
+            echo -e "${RED} ** ONLY ${passed_count}/${tests_count} TESTS HAVE PASSED **"
+        else
+            echo -e "${GREEN} ** GREAT! ${passed_count}/${tests_count} TESTS HAVE PASSED **"
+    fi
 }
 
 help_mode (){
@@ -86,7 +119,7 @@ case 'true' in
         exit 0;;
     "$h_flag") help_mode
         exit 0;;
-    "$c_flag") cmd_mode
+    "$c_flag") cmd_mode "$verbose"
         exit 0;;
         *) default_mode "$verbose" "$tested_program"
         exit 0;;
