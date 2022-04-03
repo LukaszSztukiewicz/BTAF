@@ -4,8 +4,7 @@ testdir_path='btaf-tests'
 #string constants
 readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'
-readonly CYAN='\033[0;36m'
-readonly NC='\033[0m' #No Color
+
 
 #variables
 declare -i passed_count=0
@@ -27,26 +26,26 @@ while getopts ':nhcvdf:' flag; do
     n) n_flag='true';;
     f) default_program="${OPTARG}" ;;
     d) d_flag='true';;
-    \?) echo -e "${RED} Illegal option $* ${NC}"
+    \?) tput setaf 1; echo -e "Illegal option $*"; tput sgr0;
         echo -e "---- Displaying help message ----"
         h_flag='true'
         exit 1 ;;
   esac
 done
 
-#testing modes
+#program modes
 default_mode (){
     for test in "$testdir_path"/in/*.in; do
         tests_count+=1
         testname="$(basename "${test}")"
         if [ "$1" == "true" ] && \
-            diff -w <(./"$2" <"$test" ) "$testdir_path/out/${testname:0:(-3)}.out"  || \
-            diff -w <(./"$2" <"$test" ) "$testdir_path/out/${testname:0:(-3)}.out" > /dev/null
-        then
-            echo -e "${GREEN} ${testname:0:(-3)} TEST PASSED "
+             tput setaf 1; diff -w <(./"$2" <"$test" ) "$testdir_path/out/${testname:0:(-3)}.out"  || \
+             diff -w <(./"$2" <"$test" ) "$testdir_path/out/${testname:0:(-3)}.out" > /dev/null
+         then
+            tput setaf 2; echo -e "${testname} TEST PASSED "
             passed_count+=1
         else
-            echo -e "${RED} ${testname:0:(-3)} TEST FAILED "
+            tput setaf 1; echo -e "${testname} TEST FAILED "
         fi
     done
     display_test_results $passed_count $tests_count
@@ -58,24 +57,24 @@ cmd_mode (){
         chmod +x "$cmd"
         testname="$(basename "${cmd}")"
         if [ "$1" == "true" ] && \
-            diff -w <(eval "${cmd}") "$testdir_path/out/${testname:0:(-3)}.out"  || \
+            tput setaf 1; diff -w <(eval "${cmd}") "$testdir_path/out/${testname:0:(-3)}.out"  || \
             diff -w <(eval "${cmd}") "$testdir_path/out/${testname:0:(-3)}.out" > /dev/null
         then
-            echo -e "${GREEN} ${testname:0:(-3)} TEST PASSED "
+            tput setaf 2; echo -e "${testname} TEST PASSED "
             passed_count+=1
         else
-            echo -e "${RED} ${testname:0:(-3)} TEST FAILED "
+            tput setaf 1; echo -e "${testname} TEST FAILED "
         fi
     done
     display_test_results $passed_count $tests_count
 }
 
 display_test_results() {
-    echo -e "${CYAN}-----------------------------------------------------${NC}"
+    tput setaf 6; echo -e "-----------------------------------------------------"; tput sgr0;
     if [ $1 -ne $2 ]; then
-            echo -e "${RED} ** ONLY $1/$2 TESTS HAVE PASSED **"
+            tput setaf 1; echo -e "*** ONLY $1/$2 TESTS HAVE PASSED ***"
         else
-            echo -e "${GREEN} ** GREAT! $1/$2 TESTS HAVE PASSED **"
+            tput setaf 2; echo -e "*** GREAT! $1/$2 TESTS HAVE PASSED ***"
     fi
 }
 
