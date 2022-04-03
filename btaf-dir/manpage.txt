@@ -1,0 +1,35 @@
+.\" BTAF - Bash Test Automation Framework
+.TH man 8 "04 April 2022" "1.1" "BTAF man page"
+
+.SH NAME
+btaf - Bash Test Automation Framework
+
+.SH SYNOPSIS
+btaf [OPTIONS]
+
+.SH DESCRIPTION
+Complete script-based testing framework for Linux. Written entirely in Bash.
+
+.SH OPTIONS
+.TP
+.BR \-h
+Get help. Displays man page.
+.TP
+.BR \-c 
+Sets testing in command mode.
+.TP
+.BR \-f =\fIPROGRAM\fR 
+Test given program in default mode.
+.TP
+.BR \-v 
+Displays more output.
+
+.SH EXAMPLES
+Here you can find some most useful usage examples.
+.PP
+.RS
+btaf -cv command mode with more output
+.RE
+
+.SH AUTHOR
+Lukasz Sztukiewicz https://github.com/LukaszSztukiewicz
