@@ -1,11 +1,6 @@
 #!/bin/bash
 testdir_path='btaf-tests'
 
-#string constants
-readonly RED='\033[0;31m'
-readonly GREEN='\033[0;32m'
-
-
 #variables
 declare -i passed_count=0
 declare -i tests_count=0
@@ -94,7 +89,7 @@ case 'true' in
         exit 0;;
     "$c_flag") cmd_mode "$verbose"
         exit 0;;
-    "$d_flag") default_mode "$verbose" "$default_program"
+    "$_flag") default_mode "$verbose" "$default_program"
         exit 0;;
         *) default_mode "$verbose" "$default_program"
         exit 0;;
