@@ -1,2 +1,2 @@
 #!/bin/bash
-echo test.in
+./test example.ini luxurious-cylindrical-unlucky-mortified-man.overdue-repentant-minty-turbulent-handle 
