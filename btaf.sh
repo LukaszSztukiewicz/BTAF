@@ -42,9 +42,9 @@ default_mode (){
     for test in "$dir_path"/in/*.in; do
         tests_count+=1
         testname="$(basename "${test}")"
-        if [ "$1" == "true" ] && \
-             tput setaf 1; diff -w <(./"$2" <"$test" ) "$dir_path/out/${testname:0:(-3)}.out"  || \
-             diff -w <(./"$2" <"$test" ) "$dir_path/out/${testname:0:(-3)}.out" > /dev/null
+        if [ "$verbose" == "true" ] && \
+             tput setaf 1; diff -w <(./"$default_program" <"$test" ) "$dir_path/out/${testname:0:(-3)}.out"  || \
+             diff -w <(./"$default_program" <"$test" ) "$dir_path/out/${testname:0:(-3)}.out" > /dev/null
          then
             tput setaf 2; echo -e "${testname} TEST PASSED "
             passed_count+=1
@@ -60,7 +60,7 @@ cmd_mode (){
         tests_count+=1
         chmod +x "$cmd"
         testname="$(basename "${cmd}")"
-        if [ "$1" == "true" ] && \
+        if [ "$verbose" == "true" ] && \
             tput setaf 1; diff -w <(eval "${cmd}") "$dir_path/out/${testname:0:(-3)}.out"  || \
             diff -w <(eval "${cmd}") "$dir_path/out/${testname:0:(-3)}.out" > /dev/null
         then
@@ -92,28 +92,40 @@ create_test_mode (){
     timestamp=$(date +%s)
     read -rp "Enter test name (default is [$timestamp]): " name
     newtest_name=${name:-${timestamp}}
+    if [ "$c_flag" == "true" ] && [ ! -f /$dir_path/cmd/"${newtest_name}.sh" ] && [ ! -f /$dir_path/out/"${newtest_name}.out" ] || \
+        [ "$d_flag" == "true" ] && [ ! -f /$dir_path/out/"${newtest_name}.out" ] && [ ! -f /$dir_path/in/"${newtest_name}.in" ]; then
+            if [ "$c_flag" == "true" ]; then
+                    touch $dir_path/cmd/"${newtest_name}.sh"
+                else
+                    touch $dir_path/in/"${newtest_name}.in"
+            fi
+            touch $dir_path/out/"${newtest_name}.out"
+        else
+            echo "Test ${newtest_name} already exists"
+    fi   
 
-    if [ "$c_flag" == "true" ] && [ ! -f /$dir_path/cmd/"$newtest_name" ]; then
-        touch newtest_name
-    echo "File not found!"
-        echo "Test name: " "$newtest_name"
-        
+    #input to program or command
+    if [ "$c_flag" == "true" ]; then
+            read -rp "Enter command to test (default is [echo test ${newtest_name}]): " command
+            newtest_command=${command:-"echo test ${newtest_name}"}
+        else
+            read -rp "Enter input to program (default is empty file): " input
+            newtest_input=${input:-""}
     fi
-
-    #input to program
-    timestamp=$(date +%s)
-    read -rp "Enter test name (default is [$timestamp]): " name
-    newtest_name=${name:-${timestamp}}
-
-    #command
-    timestamp=$(date +%s)
-    read -rp "Enter test name (default is [$timestamp]): " name
-    newtest_name=${name:-${timestamp}}
 
     #expected output
     timestamp=$(date +%s)
-    read -rp "Enter test name (default is [$timestamp]): " name
-    newtest_name=${name:-${timestamp}}
+    read -rp "Enter excpected output (default is no output): " output
+    newtest_output=${output:-""}
+
+    #saving test
+    if [ "$c_flag" == "true" ]; then
+            echo "$newtest_command" > $dir_path/cmd/"${newtest_name}.sh"
+        else
+            echo "$newtest_input" > $dir_path/in/"${newtest_name}.in"
+    fi
+    echo "$newtest_output" > $dir_path/out/"${newtest_name}.out"
+    echo "Test ${newtest_name} succesfully created"
 }
 
 #program main
@@ -122,10 +134,10 @@ case 'true' in
         exit 0;;
     "$h_flag") help_mode
         exit 0;;
-    "$c_flag") cmd_mode "$verbose"
+    "$c_flag") cmd_mode
         exit 0;;
-    "$d_flag") default_mode "$verbose" "$default_program"
+    "$d_flag") default_mode
         exit 0;;
-        *) default_mode "$verbose" "$default_program"
+        *) default_mode
         exit 0;;
 esac
