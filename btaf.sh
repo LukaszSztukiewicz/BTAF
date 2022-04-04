@@ -41,7 +41,7 @@ while getopts ':acd:e:hilmnp:s:t:uvVx:z:' flag; do
     n) n_flag='true';;
     p) p_flag='true'; program_to_test="${OPTARG}";;
     s) s_flag='true'; test_to_save="${OPTARG}";;
-    t) t_flag='true'; test_to_run="${OPTARG}";;
+    t) t_flag='true'; tests_to_run="${OPTARG}";;
     u) u_flag='true';;
     v) v_flag='true';;
     V) V_flag='true';;
@@ -60,8 +60,8 @@ default_mode (){
         tests_count+=1
         testname="$(basename "${test}")"
         if [ "$v_flag" == "true" ] && \
-             (tput setaf 1; diff -w <(./"$default_program" <"$test" ) "$dir_path/out/${testname:0:(-3)}.out")  || \
-             diff -w <(./"$default_program" <"$test" ) "$dir_path/out/${testname:0:(-3)}.out" > /dev/null
+             (tput setaf 1; diff -w <(./"$program_to_test" <"$test" ) "$dir_path/out/${testname:0:(-3)}.out")  || \
+             diff -w <(./"$program_to_test" <"$test" ) "$dir_path/out/${testname:0:(-3)}.out" > /dev/null
          then
             tput setaf 2; echo -e "${testname} TEST PASSED "
             passed_count+=1
@@ -71,8 +71,7 @@ default_mode (){
     done
     display_test_results $passed_count $tests_count
 }
-
-cmd_mode (){
+command_mode (){
     for cmd in "$dir_path"/cmd/*.sh; do
         tests_count+=1
         chmod +x "$cmd"
@@ -89,22 +88,122 @@ cmd_mode (){
     done
     display_test_results $passed_count $tests_count
 }
-
 display_test_results() {
     tput setaf 6; echo -e "-----------------------------------------------------"; tput sgr0;
-    if [ $1 -ne $2 ]; then
+    if [ "$1" -ne "$2" ]; then
             tput setaf 1; echo -e "*** ONLY $1/$2 TESTS HAVE PASSED ***"
         else
             tput setaf 2; echo -e "*** GREAT! $1/$2 TESTS HAVE PASSED ***"
     fi
 }
-
-
-help_mode (){
-    man $dir_path/manpage.txt
+delete_mode(){
+    if [ -f "$dir_path/cmd/$test_to_delete.sh" ]; then
+        rm "$dir_path/cmd/$test_to_delete.sh"
+        echo -e "Test $test_to_delete deleted"
+    elif [ -f "$dir_path/in/$test_to_delete.in" ]; then
+        rm "$dir_path/in/$test_to_delete.in"
+        echo -e "Test $test_to_delete deleted"
+    fi
+    if [ -f "$dir_path/out/$test_to_delete.out" ]; then
+        rm "$dir_path/out/$test_to_delete.out"
+        echo -e "Test $test_to_delete deleted"
+    else
+        echo -e "Test $test_to_delete not found"
+    fi
+}
+edit_mode(){
+    if [ -f "$dir_path/cmd/$test_to_edit.sh" ]; then
+        vim "$dir_path/cmd/$test_to_edit.sh"
+    elif [ -f "$dir_path/in/$test_to_edit.in" ]; then
+        vim "$dir_path/in/$test_to_edit.in"
+    fi
+    if [ -f "$dir_path/out/$test_to_edit.out" ]; then
+        vim "$dir_path/out/$test_to_edit.out"
+    else
+        echo -e "Test $test_to_edit not found"
+    fi
+}
+list_mode(){
+    echo "Default tests:"
+    for test in "$dir_path"/in/*.in; do
+        testname="$(basename "${test}")"
+        echo -e "${testname:0:(-3)}"
+    done
+    echo "Command tests:"
+    for cmd in "$dir_path"/cmd/*.sh; do
+        testname="$(basename "${cmd}")"
+        echo -e "${testname:0:(-3)}"
+    done
+}
+save_mode(){
+    if [ -f "$dir_path/cmd/$test_to_save.sh" ]; then
+        zip -j "$dir_path/cmd/$test_to_save.zip" "$dir_path/cmd/$test_to_save.sh"
+        echo -e "Test $test_to_save saved"
+    elif [ -f "$dir_path/in/$test_to_save.in" ]; then
+        zip -j "$dir_path/in/$test_to_save.zip" "$dir_path/in/$test_to_save.in"
+        echo -e "Test $test_to_save saved"
+    fi
+    if [ -f "$dir_path/out/$test_to_save.out" ]; then
+        zip -j "$dir_path/out/$test_to_save.zip" "$dir_path/out/$test_to_save.out"
+        echo -e "Test $test_to_save saved"
+    else
+        echo -e "Test $test_to_save not found"
+    fi
+}
+run_mode(){
+    for test in "${tests_to_run[@]}"; do
+        tests_count+=1
+        testname="$(basename "${test}")"
+        if [ "$v_flag" == "true" ] && \
+            (tput setaf 1; diff -w <(./"$program_to_test" <"$test" ) "$dir_path/out/${testname:0:(-3)}.out")  || \
+            diff -w <(./"$program_to_test" <"$test" ) "$dir_path/out/${testname:0:(-3)}.out" > /dev/null
+        then
+            tput setaf 2; echo -e "${testname} TEST PASSED "
+            passed_count+=1
+        else
+            tput setaf 1; echo -e "${testname} TEST FAILED "
+        fi
+    done
+    display_test_results $passed_count $tests_count
+}
+#crosstest program_to_test with program_to_crosstest
+crosstest_mode(){
+    if [ -f "$dir_path/cmd/$program_to_test.sh" ]; then
+        tests_count+=1
+        if [ "$v_flag" == "true" ] && \
+            (tput setaf 1; diff -w <(./"$program_to_test" <"$dir_path/in/$program_to_crosstest.in" ) "$dir_path/out/$program_to_crosstest.out")  || \
+            diff -w <(./"$program_to_test" <"$dir_path/in/$program_to_crosstest.in" ) "$dir_path/out/$program_to_crosstest.out" > /dev/null
+        then
+            tput setaf 2; echo -e "${program_to_crosstest} TEST PASSED "
+            passed_count+=1
+        else
+            tput setaf 1; echo -e "${program_to_crosstest} TEST FAILED "
+        fi
+    else
+        echo -e "Program $program_to_test not found"
+    fi
+    display_test_results $passed_count $tests_count
 }
 
-create_test_mode (){
+#uninstall btaf by removing all files
+uninstall_mode (){
+    rm -rf "$dir_path"
+    rm btaf.sh
+}
+unzip_mode (){
+    echo -e "Unzip to implement" #TODO
+}
+man_mode (){
+    man $dir_path/manpage.txt
+}
+help_mode (){
+    echo "Help to implement" #TODO
+}
+Version_mode (){
+    echo "Version to implement" #TODO
+}
+
+create_new_test_mode (){
     #test name
     timestamp=$(date +%s)
     read -rp "Enter test name (default is [$timestamp]): " name
@@ -151,13 +250,29 @@ create_test_mode (){
 
 #program main
 case 'true' in
-    "$n_flag") create_test_mode
+    "$c_flag") cmd_mode
+        exit 0;;
+    "$d_flag") delete_mode
+        exit 0;;
+    "$e_flag") edit_mode
         exit 0;;
     "$h_flag") help_mode
         exit 0;;
-    "$c_flag") cmd_mode
+    "$l_flag") list_mode
         exit 0;;
-    "$d_flag") default_mode
+    "$m_flag") man_mode
+        exit 0;;
+    "$n_flag") create_new_test_mode
+        exit 0;;
+    "$t_flag") run_mode
+        exit 0;;
+    "$u_flag") uninstall_mode
+        exit 0;;
+    "$V_flag") Version_mode
+        exit 0;;
+    "$x_flag") crosstest_mode
+        exit 0;;
+    "$z_flag") unzip_file
         exit 0;;
         *) default_mode
         exit 0;;
