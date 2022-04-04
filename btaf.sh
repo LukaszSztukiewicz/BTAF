@@ -43,7 +43,7 @@ default_mode (){
         tests_count+=1
         testname="$(basename "${test}")"
         if [ "$verbose" == "true" ] && \
-             tput setaf 1; diff -w <(./"$default_program" <"$test" ) "$dir_path/out/${testname:0:(-3)}.out"  || \
+             (tput setaf 1; diff -w <(./"$default_program" <"$test" ) "$dir_path/out/${testname:0:(-3)}.out")  || \
              diff -w <(./"$default_program" <"$test" ) "$dir_path/out/${testname:0:(-3)}.out" > /dev/null
          then
             tput setaf 2; echo -e "${testname} TEST PASSED "
@@ -61,7 +61,7 @@ cmd_mode (){
         chmod +x "$cmd"
         testname="$(basename "${cmd}")"
         if [ "$verbose" == "true" ] && \
-            tput setaf 1; diff -w <(eval "${cmd}") "$dir_path/out/${testname:0:(-3)}.out"  || \
+            (tput setaf 1; diff -w <(eval "${cmd}") "$dir_path/out/${testname:0:(-3)}.out")  || \
             diff -w <(eval "${cmd}") "$dir_path/out/${testname:0:(-3)}.out" > /dev/null
         then
             tput setaf 2; echo -e "${testname} TEST PASSED "
@@ -109,14 +109,18 @@ create_test_mode (){
             read -rp "Enter command to test (default is [echo test ${newtest_name}]): " command
             newtest_command=${command:-"echo test ${newtest_name}"}
         else
-            read -rp "Enter input to program (default is empty file): " input
-            newtest_input=${input:-""}
+            read -rp "Enter input to program (default is [test ${newtest_name}]): " input
+            newtest_input=${input:-"test ${newtest_name}"}
     fi
 
     #expected output
-    timestamp=$(date +%s)
-    read -rp "Enter excpected output (default is no output): " output
-    newtest_output=${output:-""}
+    if [ "$c_flag" == "true" ]; then
+            read -rp "Enter excpected output (default is [test ${newtest_name}]): " output
+            newtest_output=${output:-"test ${newtest_name}"}
+        else
+            read -rp "Enter excpected output (default is [test ${newtest_name}]): " output
+            newtest_output=${output:-"test ${newtest_name}"}
+    fi
 
     #saving test
     if [ "$c_flag" == "true" ]; then
