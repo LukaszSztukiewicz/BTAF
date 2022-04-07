@@ -1,12 +1,7 @@
-Invalid identifier "proud?qwerty" in INI file
-Invalid identifier "proud!qwerty" in INI file
-Invalid identifier "proud@qwerty" in INI file
-Invalid identifier "proud$qwerty" in INI file
-Invalid identifier "proud%qwerty" in INI file
-Invalid identifier "proud[qwerty" in INI file
-Invalid identifier "proud]qwerty" in INI file
-Invalid identifier "proud\qwerty" in INI file
-Invalid identifier "proud>qwerty" in INI file
-Invalid identifier "proud.qwerty" in INI file
-Invalid identifier "proud,qwerty" in INI file
+Invalid section identifier "proud?qwerty" in INI file
+Invalid key identifier "proud!qwerty" in INI file
+Invalid key identifier "proud$qwerty" in INI file
+Invalid key identifier "proud[qwerty" in INI file
+Invalid key identifier "proud\qwerty" in INI file
+Invalid key identifier "proud.qwerty" in INI file
 proudqwerty
