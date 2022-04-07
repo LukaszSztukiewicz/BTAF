@@ -97,18 +97,27 @@ display_test_results() {
     fi
 }
 delete_mode(){
-    if [ -f "$dir_path/cmd/$test_to_delete.sh" ]; then
-        rm "$dir_path/cmd/$test_to_delete.sh"
-        echo -e "Test $test_to_delete deleted"
-    elif [ -f "$dir_path/in/$test_to_delete.in" ]; then
-        rm "$dir_path/in/$test_to_delete.in"
-        echo -e "Test $test_to_delete deleted"
-    fi
-    if [ -f "$dir_path/out/$test_to_delete.out" ]; then
-        rm "$dir_path/out/$test_to_delete.out"
-        echo -e "Test $test_to_delete deleted"
+    #if a flag is set to true delete all tests
+    if [ "$a_flag" == "true" ]; then
+        rm -rf $dir_path/cmd/*
+        rm -rf $dir_path/in/*
+        rm -rf $dir_path/out/*
+        echo -e "All tests deleted"
+    #else delete provided test
     else
-        echo -e "Test $test_to_delete not found"
+        if [ -f "$dir_path/cmd/$test_to_delete.sh" ]; then
+            rm "$dir_path/cmd/$test_to_delete.sh"
+            echo -e "Test $test_to_delete deleted"
+        elif [ -f "$dir_path/in/$test_to_delete.in" ]; then
+            rm "$dir_path/in/$test_to_delete.in"
+            echo -e "Test $test_to_delete deleted"
+        fi
+        if [ -f "$dir_path/out/$test_to_delete.out" ]; then
+            rm "$dir_path/out/$test_to_delete.out"
+            echo -e "Test $test_to_delete deleted"
+        else
+            echo -e "Test $test_to_delete not found"
+        fi
     fi
 }
 edit_mode(){
@@ -184,7 +193,13 @@ crosstest_mode(){
     fi
     display_test_results $passed_count $tests_count
 }
-
+#install required directories
+create_directories (){
+    mkdir -p "$dir_path/cmd"
+    mkdir -p "$dir_path/in"
+    mkdir -p "$dir_path/out"
+    echo -e "Directories created"
+}
 #uninstall btaf by removing all files
 uninstall_mode (){
     rm -rf "$dir_path"
@@ -207,7 +222,12 @@ create_new_test_mode (){
     #test name
     timestamp=$(date +%s)
     read -rp "Enter test name (default is [$timestamp]): " name
-    newtest_name=${name:-${timestamp}}
+    newtest_name="${name:-${timestamp}}"
+    #if test name already exists
+    if [ -f "$dir_path/cmd/$newtest_name.sh" ] || [ -f "$dir_path/in/$newtest_name.in" ] || [ -f "$dir_path/out/$newtest_name.out" ]; then
+        echo "Test ${newtest_name} already exists"
+        return
+    fi
     if [ "$c_flag" == "true" ] && [ ! -f /$dir_path/cmd/"${newtest_name}.sh" ] && [ ! -f /$dir_path/out/"${newtest_name}.out" ] || \
         [ "$d_flag" == "true" ] && [ ! -f /$dir_path/out/"${newtest_name}.out" ] && [ ! -f /$dir_path/in/"${newtest_name}.in" ]; then
             if [ "$c_flag" == "true" ]; then
@@ -216,14 +236,14 @@ create_new_test_mode (){
                     touch $dir_path/in/"${newtest_name}.in"
             fi
             touch $dir_path/out/"${newtest_name}.out"
-        else
-            echo "Test ${newtest_name} already exists"
+    else
+        echo "Test ${newtest_name} already exists"
     fi   
 
     #input to program or command
     if [ "$c_flag" == "true" ]; then
-            read -rp "Enter command to test (default is [echo test ${newtest_name}]): " command
-            newtest_command=${command:-"echo test ${newtest_name}"}
+            read -rp "Enter command to test (default is [echo test ${newtest_name}]): " new_command
+            newtest_command=${new_command:-"echo test ${newtest_name}"}
         else
             read -rp "Enter input to program (default is [test ${newtest_name}]): " input
             newtest_input=${input:-"test ${newtest_name}"}
@@ -250,7 +270,9 @@ create_new_test_mode (){
 
 #program main
 case 'true' in
-    "$c_flag") cmd_mode
+    "$n_flag") create_new_test_mode
+        exit 0;;
+    "$c_flag") command_mode
         exit 0;;
     "$d_flag") delete_mode
         exit 0;;
@@ -261,8 +283,6 @@ case 'true' in
     "$l_flag") list_mode
         exit 0;;
     "$m_flag") man_mode
-        exit 0;;
-    "$n_flag") create_new_test_mode
         exit 0;;
     "$t_flag") run_mode
         exit 0;;
