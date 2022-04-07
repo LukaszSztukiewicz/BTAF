@@ -1,5 +1,5 @@
 #!/bin/bash
-dir_path='btaf-dir'
+dir_path='btaf-tests'
 
 #variables
 declare -i passed_count=0
@@ -198,7 +198,7 @@ create_directories (){
     mkdir -p "$dir_path/cmd"
     mkdir -p "$dir_path/in"
     mkdir -p "$dir_path/out"
-    echo -e "Directories created"
+    echo -e "Initial directories created"
 }
 #uninstall btaf by removing all files
 uninstall_mode (){
