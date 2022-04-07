@@ -1,0 +1,1 @@
+./main example.ini expression "ashamed-anxious-dearest-unimportant-plane.big-hearted-ornate-alarming-stingy-company + specific-key-brave-rough-quiet-thrifty-temperature.serious-first-memorable-superior-wealthy-awareness"

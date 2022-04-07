@@ -1,1 +1,1 @@
-./main example.ini expression "luxurious-cylindrical-unlucky-mortified-man.clumsy-graceful-identical-curvy-moist-rest + luxurious-cylindrical-unlucky-mortified-man.rare-juvenile-wet-clear-valuable-deafening-version"
+./main example.ini expression "luxurious-cylindrical-unlucky-mortified-man.rare-juvenile-wet-clear-valuable-deafening-version + luxurious-cylindrical-unlucky-mortified-man.important-yearly-wasteful-quick-witted-human"
