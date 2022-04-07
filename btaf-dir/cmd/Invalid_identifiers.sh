@@ -1,0 +1,1 @@
+./test invalid.ini proud.qwerty

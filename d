@@ -1,0 +1,11 @@
+Invalid identifier "proud?qwerty" in INI file
+Invalid identifier "proud!qwerty" in INI file
+Invalid identifier "proud@qwerty" in INI file
+Invalid identifier "proud$qwerty" in INI file
+Invalid identifier "proud%qwerty" in INI file
+Invalid identifier "proud[qwerty" in INI file
+Invalid identifier "proud]qwerty" in INI file
+Invalid identifier "proud\qwerty" in INI file
+Invalid identifier "proud>qwerty" in INI file
+Invalid identifier "proud.qwerty" in INI file
+Invalid identifier "proud,qwerty" in INI file
