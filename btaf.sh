@@ -1,5 +1,5 @@
 #!/bin/bash
-dir_path='btaf-tests'
+dir_path=btaf-tests
 
 #variables
 declare -i passed_count=0

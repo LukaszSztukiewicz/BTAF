@@ -1,1 +1,1 @@
-./test example.ini luxurious-cylindrical-unlucky-mortified-man.remote-faraway-oblong-standard-responsible-handle
+./main example.ini luxurious-cylindrical-unlucky-mortified-man.remote-faraway-oblong-standard-responsible-handle

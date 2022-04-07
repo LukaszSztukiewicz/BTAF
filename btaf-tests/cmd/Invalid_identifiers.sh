@@ -1,1 +1,1 @@
-./test invalid.ini proud.qwerty
+./main invalid.ini proud.qwerty
