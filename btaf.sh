@@ -193,7 +193,7 @@ crosstest_mode(){
     fi
     display_test_results $passed_count $tests_count
 }
-#install required directories
+#install required directories deprecated feature
 create_directories (){
     mkdir -p "$dir_path/cmd"
     mkdir -p "$dir_path/in"
